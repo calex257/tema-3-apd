@@ -1,0 +1,47 @@
+Calciu Alexandru - 331CC
+
+Timp de implementare: vreo 15-20 ore
+
+Note:
+
+Codul pe care l-am scris e absolut oribil but does the job.
+A fost o tema extrem de frustranta, migaloasa si m-a facut sa ma
+intreb de ce o mai fac avand in vedere punctajul mic. N-am gasit un raspuns
+bun dar asta explica calitatea indoielnica a codului si faptul
+ca nu am depus niciun efort pentru a o imbunatati.
+
+Implementare:
+
+Am impartit fisierul in doua sectiuni, marcate prin cate un namespace,
+una pentru tracker si una pentru client. In fiecare mi-am facut structuri
+specifice pentru a abstractiza elementele necesare temei(fisierele,
+lista de segmente, lista de clienti care detin un segment). Acestea sunt
+explicate in comentariile din cod, la fel ca restul workflow-ului codului.
+
+Am urmat toti pasii din cerinta pentru implementarea acestui protocol,
+simplificand in unele locuri unii pasi. De exemplu, pentru a asigura
+eficienta, am ales ca pentru fiecare segment sa aleg un client random
+de la care sa descarc din lista de clienti care au un anumit hash. Acest
+lucru respecta partea din cerinta ca un fisier nu trebuie descarcat intergal
+de la un anumit client.
+
+Dupa pasul de initializare(atunci cand fiecare client cere de la tracker
+hash-urile segmentelor dintr-un fisier), fiecare client are lista completa
+de hash-uri ale fisierelor pe care le doreste. Pentru a simula descarcarea
+lor de la client, am folosit abordarea indicata in cerinta, trimitand
+hash-ul la un client si asteptand un mesaj care sa serveasca ca ACK
+inapoi de la acel client. In thread-ul de upload am folosit MPI_Irecv
+pentru a nu ajunge intr-un blocaj(adica pentru ca MPI_Recv sa nu se
+blocheze asteptand un mesaj care nu venea niciodata). Am ales aceasta
+abordare asincrona pentru ca am decis ca ar fi mai potrivita in acest
+caz, nestiind dinainte cate request-uri va primi un client.
+
+Segmentele sunt descarcate secvential, in ordine(feature pe care l-am
+vazut si pe clienti reali de torente). Acest lucru mi-a simplificat mult
+abordarea de trimitere si primire a update-urilor, minimizand cantitatea
+de date pe care trebuia sa o trimit in aceste cazuri la un singur contor.
+
+Dupa ce un client isi termina de descarcat fisierele, el notifica tracker-ul
+ca si-a terminat treaba. Cand toti clientii au facut acest lucru,
+tracker-ul trimite mesaj la clienti sa inchida si thread-ul de upload,
+fiecare proces finalizandu-si executia
